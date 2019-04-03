@@ -11,7 +11,10 @@ def init_spark():
         .getOrCreate()
     return spark
 
-
+columns = ['id','number_of_reviews', 'first_review', 'last_review', 'latitude', 'longitude', 'amenities',
+           'security_deposit', 'cleaning_fee', 'neighbourhood_cleansed', 'bed_type', 'experiences_offered',
+           'host_verifications', 'review_scores_location', 'cancellation_policy', 'price', 'room_type',
+           'reviews_per_month', 'accommodates', 'review_scores_rating', 'host_is_superhost', 'host_listings_count', 'availability_30']
 def main():
     spark = init_spark()
     lines = spark.read.format("com.databricks.spark.csv")\
@@ -25,7 +28,7 @@ def main():
                         .option("ignoreTrailingWhiteSpace", "True") \
                         .option("mode", "PERMISSIVE") \
                         .option("wholeFile", "True")
-    listings_csv = lines.load("./data/listings.csv").rdd.map(lambda r: r.id).collect()
+    listings_csv = lines.load("./data/listings.csv").select(columns).rdd.collect()
 
     print(str(listings_csv).encode('utf-8'))
 
