@@ -1,12 +1,15 @@
 from pyspark.sql import SparkSession
 from pyspark.sql import Row, DataFrame
 from pyspark.rdd import RDD
+from sklearn.externals import joblib
+from sklearn import neural_network
 
-listings_columns = ['id','number_of_reviews', 'first_review', 'last_review', 'latitude', 'longitude', 'amenities',
+
+listings_columns = ['id','number_of_reviews', 'latitude', 'longitude', 'amenities',
                     'security_deposit', 'cleaning_fee', 'neighbourhood_cleansed', 'bed_type', 'experiences_offered',
                     'host_verifications', 'review_scores_location', 'cancellation_policy', 'price', 'room_type',
                     'reviews_per_month', 'accommodates', 'review_scores_rating', 'host_is_superhost',
-                    'host_listings_count', 'availability_30']
+                    'host_listings_count', 'availability_30']#'first_review', 'last_review',
 
 all_cities = ['amsterdam_listings.csv',          'broward_country_listings.csv',  'girona_listings.csv',
               'tasmania_listings.csv',           'antwerp_listings.csv',          'brussels_listings.csv',
@@ -41,6 +44,7 @@ all_cities = ['amsterdam_listings.csv',          'broward_country_listings.csv',
               'prague_listings.csv',             'sydney_listings.csv',
               'puglia_listings.csv',             'taipei_listings.csv']
 
+
 def init_spark():
     spark = SparkSession \
         .builder \
@@ -48,6 +52,14 @@ def init_spark():
         .config("spark.some.config.option", "some-value") \
         .getOrCreate()
     return spark
+
+
+def neural_net(train_features, train_labels):
+    classifier_nn = neural_network.MLPClassifier(solver='sgd', activation='logistic', random_state=1,
+                                                 early_stopping=True, learning_rate_init=0.2)
+    return classifier_nn.fit(train_features, train_labels)
+
+
 def generate_model(city):
     spark = init_spark()
     lines = spark.read.format("com.databricks.spark.csv") \
@@ -63,10 +75,14 @@ def generate_model(city):
         .option("wholeFile", "True")
 
 
-    listings_csv = lines.load("./data/" + city).select(listings_columns).rdd.collect()
+    listings_csv = list(lines.load("./data/" + city).select(listings_columns).rdd.collect())
 
-    print(str(listings_csv).encode('utf-8'))
+    split_index = int(len(listings_csv) * 0.8)
+    training = listings_csv[:split_index]
+    testing = listings_csv[split_index+1:]
 
+    #nn_model = neural_net(training, [])
+    #joblib.dump(nn_model, 'models/ds1/ds1-dt.joblib')
 
 
 def main():
