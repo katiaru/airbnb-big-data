@@ -2,7 +2,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql import Row, DataFrame
 from pyspark.rdd import RDD
 from sklearn.externals import joblib
-from sklearn import neural_network
+from training_models import *
+import argparse
 
 
 listings_columns = ['id','number_of_reviews', 'latitude', 'longitude', 'amenities',
@@ -54,13 +55,7 @@ def init_spark():
     return spark
 
 
-def neural_net(train_features, train_labels):
-    classifier_nn = neural_network.MLPClassifier(solver='sgd', activation='logistic', random_state=1,
-                                                 early_stopping=True, learning_rate_init=0.2)
-    return classifier_nn.fit(train_features, train_labels)
-
-
-def generate_model(city):
+def generate_model(city, ml):
     spark = init_spark()
     lines = spark.read.format("com.databricks.spark.csv") \
         .option("header", "True") \
@@ -79,18 +74,46 @@ def generate_model(city):
 
     split_index = int(len(listings_csv) * 0.8)
     training = listings_csv[:split_index]
-    testing = listings_csv[split_index+1:]
-
-    #nn_model = neural_net(training, [])
-    #joblib.dump(nn_model, 'models/ds1/ds1-dt.joblib')
+    validation = listings_csv[split_index+1:]
+    if ml == 'nn':
+        print('Generating neural net model for city ' + city + ' ...')
+        #nn_model = neural_net(training, listings_columns)
+        #joblib.dump(nn_model, 'models/nn/' + city + '.joblib')
+        print('Done! Saved as models/nn/' + city + '.joblib')
 
 
 def main():
+    # Usage: python3 data_preparation.py (train|validate|test) (nn|rf)
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('request', help='train, validate or test')
+    parser.add_argument('algo', help='nn (neural nets) or rf (random forest)')
+    parser.add_argument('--help', action='help', help='show this help message and exit')
+
+    args = parser.parse_args()
+
+    request_type = args.request.lower()
+    ml = args.algo.lower()
+    if ml != 'nn' and ml != 'rf':
+        print(ml)
+        print('You must choose between neural networks (nn) or random forest (rf) as second argument for the machine learning algorithm to use! \nExiting...')
+        return
     print("Options: \n")
     print(all_cities)
     city_name = input("Which city would you like to produce a model for?\n").lower()
     if city_name in all_cities:
-        generate_model(city_name)
+        if request_type == 'train':
+            print("Generating model for " + city_name + " using " + ml)
+            generate_model(city_name, ml)
+        elif request_type == 'validate':
+            print("Validating for " + city_name + " using " + ml)
+            #validate_model(city_name, ml)
+        elif request_type == 'test':
+            print("Testing for " + city_name + " using " + ml)
+            #test_on_model(city_name, ml)
+        else:
+            print('You must choose between (train|validate|test) as request type in the first argument! \nExiting...')
+            return
+
     else:
         print('Invalid city name: ' + city_name)
 
