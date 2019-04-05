@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 from listings_columns import listings_columns
 from data_calculations import calculate_dataset
+from data_cleaning import clean_data
 
 def init_spark():
     spark = SparkSession \
@@ -25,8 +26,9 @@ def parse_and_split(city):
         .option("wholeFile", "True")
 
     listings = lines.load("./data/" + city).select(listings_columns)
-    listings_csv = calculate_dataset(listings)
+    new_listings = calculate_dataset(listings)
 
+    listings_csv = clean_data(new_listings)
     split_index = int(len(listings_csv) * 0.8)
     training = listings_csv[:split_index]
     validation = listings_csv[split_index + 1:]

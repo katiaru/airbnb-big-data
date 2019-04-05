@@ -3,7 +3,7 @@ from pyspark.sql.functions import size, col, split
 def calculate_dataset(listings):
     df1 = neighbourhood_count(listings)
     df2 = amenities_count(df1)
-    return list(df2.rdd.collect())
+    return df2
 
 
 def neighbourhood_count(listings):
