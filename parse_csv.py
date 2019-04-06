@@ -29,6 +29,7 @@ def parse_and_split(city):
     new_listings = calculate_dataset(listings)
 
     listings_csv = clean_data(new_listings)
+    import ipdb; ipdb.set_trace()
     split_index = int(len(listings_csv) * 0.8)
     training = listings_csv[:split_index]
     validation = listings_csv[split_index + 1:]
