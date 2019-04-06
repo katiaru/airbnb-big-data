@@ -1,9 +1,12 @@
 from pyspark.sql.functions import regexp_replace, col
+from pyspark.ml.feature import StringIndexer
+
 
 def clean_data(listings):
     df1 = handle_empty_fields(listings)
     df2 = remove_dollar_signs(df1)
     df3 = convert_column_types(df2)
+    #df4 = string_index(df3)
     return df3
 
 
@@ -35,3 +38,10 @@ def convert_column_types(listings):
     availability_30 = host_listings_count.withColumn("availability_30", listings["availability_30"].cast("integer"))
     price = availability_30.withColumn("price", listings["price"].cast("double"))
     return price
+    
+def string_index(listings):
+    room_type_indexer = StringIndexer(inputCol="room_type", outputCol="room_index").fit(listings).transform(listings)
+    bed_type_indexer = StringIndexer(inputCol="bed_type", outputCol="bed_index").fit(room_type_indexer).transform(room_type_indexer)
+    cancellation_indexer = StringIndexer(inputCol="cancellation_policy", outputCol="cancellation_index").fit(bed_type_indexer).transform(bed_type_indexer)
+    host_index = StringIndexer(inputCol="host_is_superhost", outputCol="host_index").fit(cancellation_indexer).transform(cancellation_indexer)
+    return host_index
