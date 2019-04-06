@@ -12,13 +12,14 @@ import argparse
 def generate_model(city, ml, training_data):
     if ml == 'nn':
         print('Generating neural net model for city ' + city + ' ...')
-        #nn_model = neural_net(training_data, listings_columns)
-        #joblib.dump(nn_model, 'models/nn/' + city + '.joblib')
+        print(training_data)
+        nn_model = neural_net(training_data, [])
+        joblib.dump(nn_model, 'models/nn/' + city + '.joblib')
         print('Done! Saved as models/nn/' + city + '.joblib')
     elif ml == 'rf':
         print('Generating random forest model for city ' + city + ' ...')
-        #rf_model = random_forest(training_data, listings_columns)
-        #joblib.dump(rf_model, 'models/rf/' + city + '.joblib')
+        rf_model = random_forest(training_data, listings_columns)
+        joblib.dump(rf_model, 'models/rf/' + city + '.joblib')
         print('Done! Saved as models/rf/' + city + '.joblib')
 
 def main():
@@ -43,10 +44,10 @@ def main():
         data = parse_and_split(city_name)
         if request_type == 'train':
             print("Generating model for " + city_name + " using " + ml)
-            generate_model(city_name, ml, data[0])
+            generate_model(city_name, ml, data)
         elif request_type == 'validate':
             print("Validating for " + city_name + " using " + ml)
-            #validate_model(city_name, ml, data[1])
+            #validate_model(city_name, ml, data)
         elif request_type == 'test':
             print("Testing for " + city_name + " using " + ml)
             #test_on_model(city_name, ml)

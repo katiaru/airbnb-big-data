@@ -1,5 +1,5 @@
-listings_columns = ['id','number_of_reviews', 'latitude', 'longitude', 'amenities',
+listings_columns = ['id', 'latitude', 'longitude',
                     'security_deposit', 'cleaning_fee', 'neighbourhood_cleansed', 'bed_type', 'experiences_offered',
-                    'host_verifications', 'review_scores_location', 'cancellation_policy', 'price', 'room_type',
+                    'host_verifications', 'review_scores_location', 'cancellation_policy', 'room_type',
                     'reviews_per_month', 'accommodates', 'review_scores_rating', 'host_is_superhost',
-                    'host_listings_count', 'availability_30']#'first_review', 'last_review',
+                    'host_listings_count', 'availability_30', 'price']#'first_review', 'last_review','number_of_reviews','amenities',

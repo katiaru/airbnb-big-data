@@ -23,10 +23,10 @@ def parse_and_split(city):
         .option("mode", "PERMISSIVE") \
         .option("wholeFile", "True")
 
-    listings_csv = list(lines.load("./data/" + city).select(listings_columns).rdd.collect())
+    listings_csv = lines.load("./data/" + city).select(listings_columns)
 
-    split_index = int(len(listings_csv) * 0.8)
-    training = listings_csv[:split_index]
-    validation = listings_csv[split_index + 1:]
+    #split_index = int(len(listings_csv) * 0.8)
+    #training = listings_csv[:split_index]
+    #validation = listings_csv[split_index + 1:]
 
-    return [training, validation]
+    return listings_csv
