@@ -13,51 +13,23 @@ def neural_net(train_features, train_labels):
 
 
 def random_forest(train_features, train_labels):
-    print(str(train_features.collect()[0]).encode('utf-8'))
-    #classifier_rf = RandomForestClassifier(n_estimators=100, max_depth=2, random_state=0)
-    #return classifier_rf.fit(train_features, train_labels)
-    #def transData(row):
-        #return Row(label=row["price"], features=Vectors.dense([row["longitude"], row["latitude"], row["reviews_per_month"]]))
-    def get_dummy(df, indexCol, categoricalCols, continuousCols, labelCol):
+    print(str(train_features.collect()).encode('utf-8'))
 
-        indexers = [StringIndexer(inputCol=c, outputCol="{0}_indexed".format(c), handleInvalid="skip")
-                    for c in categoricalCols]
+    assemblerInputs = ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
+                       'neighbourhood_cleansed_index', 'bed_index', 'experiences_offered_index',
+                       'verifications_count', 'review_scores_location', 'cancellation_index', 'room_index',
+                       'reviews_per_month', 'accommodates', 'review_scores_rating', 'host_index',
+                       'host_listings_count', 'availability_30']
 
-        # default setting: dropLast=True
-        encoders = [OneHotEncoder(inputCol=indexer.getOutputCol(),
-                                  outputCol="{0}_encoded".format(indexer.getOutputCol()))
-                    for indexer in indexers]
+    assembler = VectorAssembler(inputCols=assemblerInputs, outputCol="features")
 
-        assembler = VectorAssembler(inputCols=[encoder.getOutputCol() for encoder in encoders]
-                                              + continuousCols, outputCol="features")
+    df = assembler.transform(train_features)
+    df = df.withColumn("label", train_features.price)
 
-        pipeline = Pipeline(stages=indexers + encoders + [assembler])
+    # randomly split data into training and test dataset
+    (trainingData, testData) = df.randomSplit([0.8, 0.2])
 
-        model = pipeline.fit(df)
-        data = model.transform(df)
-
-        data = data.withColumn('label', col(labelCol))
-
-        return data.select(indexCol, 'features', 'label')
-    def transData(data):
-        return data.rdd.map(lambda r: [Vectors.dense(r[1:-2]), r[-1]]).toDF(['features', 'label'])
-
-    dummy = get_dummy(train_features, 'id', categorical_columns, continuous_columns, 'price')
-    transformed = transData(dummy)
-    transformed.show(5)
-
-    featureIndexer = \
-        VectorIndexer(inputCol="amenities", outputCol="indexedFeatures", maxCategories=4).fit(train_features)
-
-    # Split the data into training and test sets (30% held out for testing)
-    (trainingData, testData) = train_features.randomSplit([0.8, 0.2])
-
-    # Train a RandomForest model.
-    rf = RandomForestRegressor(featuresCol="indexedFeatures")
-
-    # Chain indexer and forest in a Pipeline
-    pipeline = Pipeline(stages=[featureIndexer, rf])
-
-    # Train model.  This also runs the indexer.
-    model = pipeline.fit(trainingData)
-    return model
+    # train RandomForest model
+    rf = RandomForestRegressor(labelCol="label", featuresCol="features")
+    rf_model = rf.fit(trainingData)
+    return rf_model

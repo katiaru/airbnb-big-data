@@ -2,8 +2,8 @@ from pyspark.sql.functions import size, col, split
 
 
 def calculate_dataset(listings):
-    df1 = neighbourhood_count(listings)
-    df2 = amenities_count(df1)
+    #df1 = neighbourhood_count(listings)
+    df2 = amenities_count(listings)
     df3 = verifications_count(df2)
     return df3
 
@@ -19,4 +19,4 @@ def amenities_count(listings):
 
 
 def verifications_count(listings):
-    return listings.withColumn('verifications_count', size(split(col("host_verifications"), r"\,")))
+    return listings.withColumn('verifications_count', size(split(col("host_verifications"), r"\,"))).drop('host_verifications')

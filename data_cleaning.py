@@ -6,8 +6,8 @@ def clean_data(listings):
     df1 = handle_empty_fields(listings)
     df2 = remove_dollar_signs(df1)
     df3 = convert_column_types(df2)
-    #df4 = string_index(df3)
-    return df3
+    df4 = string_index(df3)
+    return df4
 
 
 def handle_empty_fields(listings):
@@ -40,8 +40,17 @@ def convert_column_types(listings):
     return price
     
 def string_index(listings):
-    room_type_indexer = StringIndexer(inputCol="room_type", outputCol="room_index").fit(listings).transform(listings)
-    bed_type_indexer = StringIndexer(inputCol="bed_type", outputCol="bed_index").fit(room_type_indexer).transform(room_type_indexer)
-    cancellation_indexer = StringIndexer(inputCol="cancellation_policy", outputCol="cancellation_index").fit(bed_type_indexer).transform(bed_type_indexer)
-    host_index = StringIndexer(inputCol="host_is_superhost", outputCol="host_index").fit(cancellation_indexer).transform(cancellation_indexer)
-    return host_index
+    neighbourhood_cleansed_indexer = StringIndexer(inputCol="neighbourhood_cleansed", outputCol="neighbourhood_cleansed_index", handleInvalid = "keep").fit(listings).transform(listings)
+    experiences_offered_indexer = StringIndexer(inputCol="experiences_offered", outputCol="experiences_offered_index", handleInvalid = "keep").fit(neighbourhood_cleansed_indexer).transform(neighbourhood_cleansed_indexer)
+    room_type_indexer = StringIndexer(inputCol="room_type", outputCol="room_index", handleInvalid = "keep").fit(experiences_offered_indexer).transform(experiences_offered_indexer)
+    bed_type_indexer = StringIndexer(inputCol="bed_type", outputCol="bed_index", handleInvalid = "keep").fit(room_type_indexer).transform(room_type_indexer)
+    cancellation_indexer = StringIndexer(inputCol="cancellation_policy", outputCol="cancellation_index", handleInvalid = "keep").fit(bed_type_indexer).transform(bed_type_indexer)
+    host_index = StringIndexer(inputCol="host_is_superhost", outputCol="host_index", handleInvalid = "keep").fit(cancellation_indexer).transform(cancellation_indexer)
+
+    neighbourhood_cleansed_indexer = host_index.drop('neighbourhood_cleansed')
+    experiences_offered_dropped = neighbourhood_cleansed_indexer.drop('experiences_offered')
+    room_type_dropped = experiences_offered_dropped.drop('room_type')
+    bed_type_dropped = room_type_dropped.drop('bed_type')
+    cancellation_policy_dropped = bed_type_dropped.drop('cancellation_policy')
+    host_is_superhost_dropped = cancellation_policy_dropped.drop('host_is_superhost')
+    return host_is_superhost_dropped

@@ -24,6 +24,6 @@ def parse_and_split(city):
         .option("ignoreTrailingWhiteSpace", "True") \
         .option("mode", "PERMISSIVE") \
         .option("wholeFile", "True")
-
+    print(str(lines.load("./data/" + city).select(listings_columns).collect()[0]).encode('utf-8'))
     listings_csv = calculate_dataset(clean_data(lines.load("./data/" + city).select(listings_columns)))
     return listings_csv
