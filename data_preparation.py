@@ -54,7 +54,9 @@ def main():
             validate_saved_model(city_name, ml, testData)
         elif request_type == 'test':
             print("Testing for " + city_name + " using " + ml)
-            #test_on_model(city_name, ml)
+            to_predict = parse_and_split(spark, 'test.csv')
+            to_predict = transform_df_to_features_vector(to_predict)
+            test_on_model(city_name, ml, to_predict)
         else:
             print('You must choose between (train|validate|test) as request type in the first argument! \nExiting...')
             return
