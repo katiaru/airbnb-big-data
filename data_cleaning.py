@@ -17,6 +17,7 @@ def handle_empty_fields(listings):
     no_fee_values = no_price.na.fill('0.00', ['cleaning_fee', 'security_deposit'])
     return no_fee_values
 
+
 def remove_dollar_signs(listings):
     price_col = listings.withColumn('new_price', regexp_replace(col('price'), '\$', '')).drop('price')\
                                 .withColumnRenamed('new_price', 'price')
@@ -39,7 +40,8 @@ def convert_column_types(listings):
     host_listings_count = review_scores_rating.withColumn("host_listings_count", listings["host_listings_count"].cast("integer"))
     availability_30 = host_listings_count.withColumn("availability_30", listings["availability_30"].cast("integer"))
     price = availability_30.withColumn("price", listings["price"].cast("double"))
-    return price
+    fix_price = price.filter(price['price'].isNotNull())
+    return fix_price
     
 def string_index(listings):
     neighbourhood_cleansed_indexer = StringIndexer(inputCol="neighbourhood_cleansed", outputCol="neighbourhood_cleansed_index", handleInvalid = "keep").fit(listings).transform(listings)
