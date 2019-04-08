@@ -5,27 +5,30 @@ from sklearn.externals import joblib
 from listings_columns import listings_columns
 from training_models import *
 from all_cities import all_cities
-from parse_csv import parse_and_split
+from parse_csv import *
 import argparse
+from validate import *
+from data_cleaning import transform_df_to_features_vector
 
 
 def generate_model(city, ml, training_data):
     if ml == 'nn':
         print('Generating neural net model for city ' + city + ' ...')
-        print(training_data)
         nn_model = neural_net(training_data, [])
         joblib.dump(nn_model, 'models/nn/' + city + '.joblib')
         print('Done! Saved as models/nn/' + city + '.joblib')
     elif ml == 'rf':
         print('Generating random forest model for city ' + city + ' ...')
-        rf_model = random_forest(training_data, listings_columns)
-        joblib.dump(rf_model, 'models/rf/' + city + '.joblib')
-        print('Done! Saved as models/rf/' + city + '.joblib')
+        rf_model = random_forest(training_data)
+        st = 'models/rf/' + city
+        rf_model.write().overwrite().save(st)
+        print('Done! Saved as models/rf/' + city)
 
 def main():
+    spark = init_spark()
     # Usage: python3 data_preparation.py (train|validate|test) (nn|rf)
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('request', help='train, validate or test')
+    parser.add_argument('request', help='train or test')
     parser.add_argument('algo', help='nn (neural nets) or rf (random forest)')
     parser.add_argument('--help', action='help', help='show this help message and exit')
 
@@ -41,13 +44,14 @@ def main():
     print(all_cities)
     city_name = input("Which city would you like to produce a model for?\n").lower()
     if city_name in all_cities:
-        data = parse_and_split(city_name)
+        data = parse_and_split(spark, city_name)
+        data = transform_df_to_features_vector(data)
+        (trainingData, testData) = data.randomSplit([0.8, 0.2])
         if request_type == 'train':
             print("Generating model for " + city_name + " using " + ml)
-            generate_model(city_name, ml, data)
-        elif request_type == 'validate':
+            generate_model(city_name, ml, trainingData)
             print("Validating for " + city_name + " using " + ml)
-            #validate_model(city_name, ml, data)
+            validate_saved_model(city_name, ml, testData)
         elif request_type == 'test':
             print("Testing for " + city_name + " using " + ml)
             #test_on_model(city_name, ml)

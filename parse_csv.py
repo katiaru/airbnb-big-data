@@ -3,6 +3,7 @@ from listings_columns import listings_columns
 from data_calculations import calculate_dataset
 from data_cleaning import clean_data
 
+
 def init_spark():
     spark = SparkSession \
         .builder \
@@ -11,8 +12,7 @@ def init_spark():
         .getOrCreate()
     return spark
 
-def parse_and_split(city):
-    spark = init_spark()
+def parse_and_split(spark, city):
     lines = spark.read.format("com.databricks.spark.csv") \
         .option("header", "True") \
         .option("multiLine", "True") \

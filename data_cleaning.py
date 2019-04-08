@@ -1,5 +1,6 @@
 from pyspark.sql.functions import regexp_replace, col
 from pyspark.ml.feature import StringIndexer
+from pyspark.ml.feature import VectorAssembler
 
 
 def clean_data(listings):
@@ -7,7 +8,8 @@ def clean_data(listings):
     df2 = remove_dollar_signs(df1)
     df3 = convert_column_types(df2)
     df4 = string_index(df3)
-    return df4
+
+    return df4.na.drop()
 
 
 def handle_empty_fields(listings):
@@ -54,3 +56,15 @@ def string_index(listings):
     cancellation_policy_dropped = bed_type_dropped.drop('cancellation_policy')
     host_is_superhost_dropped = cancellation_policy_dropped.drop('host_is_superhost')
     return host_is_superhost_dropped
+
+def transform_df_to_features_vector(train_features):
+    assemblerInputs = ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
+                       'neighbourhood_cleansed_index', 'bed_index', 'experiences_offered_index',
+                       'verifications_count', 'cancellation_index', 'room_index',
+                       'accommodates', 'host_index', 'host_listings_count', 'availability_30']
+
+    assembler = VectorAssembler(inputCols=assemblerInputs, outputCol="features")
+
+    df = assembler.transform(train_features)
+    df = df.withColumn("label", train_features.price)
+    return df
