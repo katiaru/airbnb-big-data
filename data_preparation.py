@@ -12,11 +12,14 @@ from data_cleaning import transform_df_to_features_vector
 
 
 def generate_model(city, ml, training_data):
-    if ml == 'nn':
-        print('Generating neural net model for city ' + city + ' ...')
-        nn_model = neural_net(training_data, [])
-        joblib.dump(nn_model, 'models/nn/' + city + '.joblib')
-        print('Done! Saved as models/nn/' + city + '.joblib')
+
+    if ml == 'dt':
+        print('Generating decision tree model for city ' + city + ' ...')
+        df_model = decision_tree(training_data)
+        st = 'models/dt/' + city
+        df_model.write().overwrite().save(st)
+        print('Done! Saved as models/dt/' + city)
+
     elif ml == 'rf':
         print('Generating random forest model for city ' + city + ' ...')
         rf_model = random_forest(training_data)
@@ -26,19 +29,19 @@ def generate_model(city, ml, training_data):
 
 def main():
     spark = init_spark()
-    # Usage: python3 data_preparation.py (train|validate|test) (nn|rf)
+    # Usage: python3 data_preparation.py (train|validate|test) (dt|rf)
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('request', help='train or test')
-    parser.add_argument('algo', help='nn (neural nets) or rf (random forest)')
+    parser.add_argument('algo', help='dt (decision tree) or rf (random forest)')
     parser.add_argument('--help', action='help', help='show this help message and exit')
 
     args = parser.parse_args()
 
     request_type = args.request.lower()
     ml = args.algo.lower()
-    if ml != 'nn' and ml != 'rf':
+    if ml != 'dt' and ml != 'rf':
         print(ml)
-        print('You must choose between neural networks (nn) or random forest (rf) as second argument for the machine learning algorithm to use! \nExiting...')
+        print('You must choose between decision tree (dt) or random forest (rf) as second argument for the machine learning algorithm to use! \nExiting...')
         return
     print("Options: \n")
     print(all_cities)
