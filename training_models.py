@@ -21,7 +21,7 @@ def random_forest(train_features):
     crossval = CrossValidator(estimator=rf,
                               estimatorParamMaps=paramGrid,
                               evaluator=evaluator,
-                              numFolds=1)
+                              numFolds=3)
 
     rf_model = crossval.fit(df)
 

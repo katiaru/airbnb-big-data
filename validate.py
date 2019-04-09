@@ -10,7 +10,7 @@ def validate_saved_model(city, ml_type, test_data):
         #savedModel = RandomForestRegressionModel.load('models/' + ml_type + '/' + city)
         savedModel = CrossValidatorModel.load('models/' + ml_type + '/' + city)
         print(savedModel.bestModel)
-        predictions = savedModel.bestModel.transform(test_data)
+        predictions = savedModel.transform(test_data)
 
         evaluator = RegressionEvaluator(
             labelCol="label", predictionCol="prediction", metricName="rmse")
