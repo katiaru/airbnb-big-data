@@ -1,6 +1,6 @@
-from sklearn import neural_network
 from pyspark.ml.regression import RandomForestRegressor, DecisionTreeRegressor
-
+from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
+from pyspark.ml.evaluation import RegressionEvaluator
 
 '''
 featuresCol='features', labelCol='label', predictionCol='prediction', maxDepth=5, maxBins=32, minInstancesPerNode=1,
@@ -10,8 +10,21 @@ featuresCol='features', labelCol='label', predictionCol='prediction', maxDepth=5
 
 def random_forest(train_features):
     df = train_features
-    rf = RandomForestRegressor(labelCol="label", featuresCol="features", maxDepth=29, numTrees=50)
-    rf_model = rf.fit(df)
+    rf = RandomForestRegressor(labelCol="label", featuresCol="features")
+
+    paramGrid = ParamGridBuilder() \
+        .addGrid(rf.maxDepth, [5, 10, 20, 29]) \
+        .addGrid(rf.numTrees, [5, 10, 30, 40, 50]) \
+        .build()
+    evaluator = RegressionEvaluator(
+        labelCol="label", predictionCol="prediction", metricName="rmse")
+    crossval = CrossValidator(estimator=rf,
+                              estimatorParamMaps=paramGrid,
+                              evaluator=evaluator,
+                              numFolds=3)
+
+    rf_model = crossval.fit(df)
+
     return rf_model
 
 def decision_tree(train_features):

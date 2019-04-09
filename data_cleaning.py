@@ -1,6 +1,7 @@
 from pyspark.sql.functions import regexp_replace, col
 from pyspark.ml.feature import StringIndexer
 from pyspark.ml.feature import VectorAssembler
+from data_calculations import neighbourhood_count
 
 
 def clean_data(listings):
@@ -8,7 +9,6 @@ def clean_data(listings):
     df2 = remove_dollar_signs(df1)
     df3 = convert_column_types(df2)
     df4 = string_index(df3)
-
     return df4.na.drop()
 
 
@@ -44,6 +44,7 @@ def convert_column_types(listings):
     return fix_price
     
 def string_index(listings):
+    listings = neighbourhood_count(listings)
     neighbourhood_cleansed_indexer = StringIndexer(inputCol="neighbourhood_cleansed", outputCol="neighbourhood_cleansed_index", handleInvalid = "keep").fit(listings).transform(listings)
     experiences_offered_indexer = StringIndexer(inputCol="experiences_offered", outputCol="experiences_offered_index", handleInvalid = "keep").fit(neighbourhood_cleansed_indexer).transform(neighbourhood_cleansed_indexer)
     room_type_indexer = StringIndexer(inputCol="room_type", outputCol="room_index", handleInvalid = "keep").fit(experiences_offered_indexer).transform(experiences_offered_indexer)
@@ -61,7 +62,7 @@ def string_index(listings):
 
 def transform_df_to_features_vector(train_features):
     assemblerInputs = ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
-                       'neighbourhood_cleansed_index', 'bed_index', 'experiences_offered_index',
+                       'neighbourhood_cleansed_index', 'neighbourhood_count', 'bed_index', 'experiences_offered_index',
                        'verifications_count', 'cancellation_index', 'room_index',
                        'accommodates', 'host_index', 'host_listings_count', 'availability_30']
 

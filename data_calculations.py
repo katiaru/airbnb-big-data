@@ -2,10 +2,9 @@ from pyspark.sql.functions import size, col, split
 
 
 def calculate_dataset(listings):
-    #df1 = neighbourhood_count(listings)
-    df2 = amenities_count(listings)
-    df3 = verifications_count(df2)
-    return df3
+    df1 = amenities_count(listings)
+    df2 = verifications_count(df1)
+    return df2
 
 
 def neighbourhood_count(listings):

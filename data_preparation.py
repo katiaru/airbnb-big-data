@@ -61,7 +61,7 @@ def main():
             to_predict = transform_df_to_features_vector(to_predict)
             test_on_model(city_name, ml, to_predict)
         else:
-            print('You must choose between (train|validate|test) as request type in the first argument! \nExiting...')
+            print('You must choose between (train|test) as request type in the first argument! \nExiting...')
             return
 
     else:
