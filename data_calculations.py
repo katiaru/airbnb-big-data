@@ -1,8 +1,9 @@
-from pyspark.sql.functions import size, col, split
+from pyspark.sql.functions import size, col, split, mean
 
 
 def calculate_dataset(listings):
-    #amenities_total_list(listings)
+    mean_review_scores_rating = listings.select([mean('review_scores_rating')]).collect()[0][0]
+    listings = listings.filter(listings.review_scores_rating > mean_review_scores_rating)
     df1 = amenities_count(listings)
     df2 = verifications_count(df1)
     return df2
