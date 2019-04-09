@@ -2,6 +2,7 @@ from pyspark.sql.functions import size, col, split
 
 
 def calculate_dataset(listings):
+   # amenities_total_list(listings)
     df1 = amenities_count(listings)
     df2 = verifications_count(df1)
     return df2
@@ -19,3 +20,8 @@ def amenities_count(listings):
 
 def verifications_count(listings):
     return listings.withColumn('verifications_count', size(split(col("host_verifications"), r"\,"))).drop('host_verifications')
+
+def amenities_total_list(listings):
+    org = listings.withColumn('amenities_count', size(split(col("amenities"), r"\,"))).flatMap()
+    print(str(org.groupBy('amenities_count').groups).encode('utf-8'))
+
