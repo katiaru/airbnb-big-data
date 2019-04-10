@@ -6,8 +6,6 @@ from  pyspark.ml.tuning import CrossValidatorModel
 
 def validate_saved_model(city, ml_type, test_data):
     if ml_type == "rf":
-
-        #savedModel = RandomForestRegressionModel.load('models/' + ml_type + '/' + city)
         savedModel = CrossValidatorModel.load('models/' + ml_type + '/' + city)
         print(savedModel.bestModel)
         predictions = savedModel.transform(test_data)
@@ -32,7 +30,6 @@ def validate_saved_model(city, ml_type, test_data):
 
 def test_on_model(city, ml_type, values):
     if ml_type == "rf":
-        #savedModel = RandomForestRegressionModel.load('models/' + ml_type + '/' + city)
         savedModel = CrossValidatorModel.load('models/' + ml_type + '/' + city)
         print(savedModel.bestModel.extractParamMap())
         print(savedModel.bestModel.featureImportances)

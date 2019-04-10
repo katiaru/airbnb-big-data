@@ -15,6 +15,7 @@ def random_forest(train_features):
     paramGrid = ParamGridBuilder() \
         .addGrid(rf.maxDepth, [5, 10, 20, 29]) \
         .addGrid(rf.numTrees, [5, 10, 30, 40, 50]) \
+        .addGrid(rf.numTrees, [32, 190]) \
         .build()
     evaluator = RegressionEvaluator(
         labelCol="label", predictionCol="prediction", metricName="rmse")

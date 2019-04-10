@@ -49,6 +49,7 @@ def main():
     if city_name in all_cities:
         data = parse_and_split(spark, city_name)
         data = transform_df_to_features_vector(data)
+
         (trainingData, testData) = data.randomSplit([0.8, 0.2])
         if request_type == 'train':
             print("Generating model for " + city_name + " using " + ml)

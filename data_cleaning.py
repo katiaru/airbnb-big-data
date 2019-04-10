@@ -1,7 +1,7 @@
 from pyspark.sql.functions import regexp_replace, col, split
 from pyspark.ml.feature import StringIndexer, CountVectorizer
 from pyspark.ml.feature import VectorAssembler
-from data_calculations import neighbourhood_count
+from data_calculations import neighbourhood_count, get_amenities_total_list, add_amenities_columns
 
 
 def clean_data(listings):
@@ -68,17 +68,15 @@ def transform_df_to_features_vector(train_features):
                        'verifications_count', 'cancellation_index', 'room_index',
                        'accommodates', 'host_index', 'host_listings_count', 'availability_30']
 
+    amenities_total_list = get_amenities_total_list(train_features)
+
+    train_features = add_amenities_columns(train_features, amenities_total_list)
+
+    assemblerInputs = assemblerInputs + amenities_total_list
+
     assembler = VectorAssembler(inputCols=assemblerInputs, outputCol="features")
 
     df = assembler.transform(train_features)
     df = df.withColumn("label", train_features.price)
     return df
 
-def one_hot_vector(listings):
-    split_amenities = listings.withColumn("amenities_array", regexp_replace(col('amenities'), '[\{\}"]', ''))
-    amenities_list = split_amenities.withColumn("amenities_list", split(col('amenities_array'), ',')).drop('amenities_array')
-    amenities_vector = CountVectorizer(inputCol="amenities_list", outputCol="amenities_vector", minDF=10.0)
-    vector_model = amenities_vector.fit(amenities_list)
-    one_hot_vec = vector_model.transform(amenities_list)
-    print(str(one_hot_vec.collect()[0]).encode('utf-8'))
-    return one_hot_vec
