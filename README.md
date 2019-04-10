@@ -16,4 +16,3 @@ of the algorithms to yield the best price estimator model.
 The environment we are using is a linux docker container. 
 
 docker run -it -v "$(pwd):/assignment" bigdatalabteam/sparkdocker
-pip install sklearn
