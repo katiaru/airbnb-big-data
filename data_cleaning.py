@@ -42,8 +42,8 @@ def convert_column_types(listings):
     review_scores_rating = reviews_per_month.withColumn("review_scores_rating", listings["review_scores_rating"].cast("integer"))
     accommodates = review_scores_rating.withColumn("accommodates", listings["accommodates"].cast("integer"))
     host_listings_count = accommodates.withColumn("host_listings_count", listings["host_listings_count"].cast("integer"))
-    availability_30 = host_listings_count.withColumn("availability_30", listings["availability_30"].cast("integer"))
-    minimum_nights = availability_30.withColumn("minimum_nights", listings["minimum_nights"].cast("integer"))
+    # availability_30 = host_listings_count.withColumn("availability_30", listings["availability_30"].cast("integer"))
+    minimum_nights = host_listings_count.withColumn("minimum_nights", listings["minimum_nights"].cast("integer"))
     bathrooms = minimum_nights.withColumn("bathrooms", listings["bathrooms"].cast("double"))
     bedrooms = bathrooms.withColumn("bedrooms", listings["bedrooms"].cast("integer"))
     guests_included = bedrooms.withColumn("guests_included", listings["guests_included"].cast("integer"))
@@ -64,9 +64,9 @@ def string_index(listings):
     require_guest_phone_verification = StringIndexer(inputCol="require_guest_phone_verification", outputCol="guest_phone_verification", handleInvalid = "keep").fit(host_index).transform(host_index)
     require_guest_profile_picture = StringIndexer(inputCol="require_guest_profile_picture", outputCol="guest_profile_picture", handleInvalid = "keep").fit(require_guest_phone_verification).transform(require_guest_phone_verification)
     property_type = StringIndexer(inputCol="property_type", outputCol="property_type_index", handleInvalid = "keep").fit(require_guest_profile_picture).transform(require_guest_profile_picture)
-    instant_bookable = StringIndexer(inputCol="instant_bookable", outputCol="instant_bookable_index", handleInvalid = "keep").fit(property_type).transform(property_type)
-    is_business_travel_ready = StringIndexer(inputCol="is_business_travel_ready", outputCol="business_travel_index", handleInvalid = "keep").fit(instant_bookable).transform(instant_bookable)
-    host_has_profile_pic = StringIndexer(inputCol="host_has_profile_pic", outputCol="host_has_profile_pic_index", handleInvalid = "keep").fit(is_business_travel_ready).transform(is_business_travel_ready)
+    # instant_bookable = StringIndexer(inputCol="instant_bookable", outputCol="instant_bookable_index", handleInvalid = "keep").fit(property_type).transform(property_type)
+    # is_business_travel_ready = StringIndexer(inputCol="is_business_travel_ready", outputCol="business_travel_index", handleInvalid = "keep").fit(instant_bookable).transform(instant_bookable)
+    host_has_profile_pic = StringIndexer(inputCol="host_has_profile_pic", outputCol="host_has_profile_pic_index", handleInvalid = "keep").fit(property_type).transform(property_type)
     # host_identify_verified = StringIndexer(inputCol="host_identify_verified", outputCol="host_identify_verified_index", handleInvalid = "keep").fit(host_has_profile_pic).transform(host_has_profile_pic)
 
 
@@ -89,9 +89,9 @@ def string_index(listings):
 def transform_df_to_features_vector(train_features):
     assemblerInputs = ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
                        'neighbourhood_cleansed_index', 'neighbourhood_count', 'bed_index', 'experiences_offered_index',
-                       'verifications_count', 'cancellation_index', 'room_index',
-                       'accommodates', 'host_index', 'host_listings_count', 'availability_30', 'guest_phone_verification',
-                       'guest_profile_picture', 'property_type_index', 'instant_bookable_index', 'business_travel_index',
+                       'cancellation_index', 'room_index',
+                       'accommodates', 'host_index', 'host_listings_count', 'guest_phone_verification',
+                       'guest_profile_picture', 'property_type_index',
                        'host_has_profile_pic_index']
 
     amenities_total_list = get_amenities_total_list(train_features)

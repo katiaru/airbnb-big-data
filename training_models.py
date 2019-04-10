@@ -13,9 +13,10 @@ def random_forest(train_features):
     rf = RandomForestRegressor(labelCol="label", featuresCol="features")
 
     paramGrid = ParamGridBuilder() \
-        .addGrid(rf.maxDepth, [5, 10, 20, 29]) \
-        .addGrid(rf.numTrees, [5, 10, 30, 40, 50]) \
+        .addGrid(rf.maxDepth, [2, 5, 20, 29]) \
+        .addGrid(rf.numTrees, [5, 10, 40, 50]) \
         .addGrid(rf.numTrees, [32, 190]) \
+        .addGrid(rf.maxBins, [40, 50]) \
         .build()
     evaluator = RegressionEvaluator(
         labelCol="label", predictionCol="prediction", metricName="rmse")

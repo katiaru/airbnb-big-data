@@ -7,8 +7,8 @@ def calculate_dataset(listings):
     above_mean_ratings = listings.filter(listings.review_scores_rating > mean_review_scores_rating).drop('review_scores_rating')
     reviews_per_month = above_mean_ratings.filter(above_mean_ratings.reviews_per_month > 0.5).drop('reviews_per_month')
     df1 = amenities_count(reviews_per_month)
-    df2 = verifications_count(df1)
-    return df2
+    # df2 = verifications_count(df1)
+    return df1
 
 
 def neighbourhood_count(listings):
