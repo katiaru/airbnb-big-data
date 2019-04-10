@@ -16,7 +16,7 @@ def random_forest(train_features):
         .addGrid(rf.maxDepth, [2, 5, 20, 29]) \
         .addGrid(rf.numTrees, [5, 10, 40, 50]) \
         .addGrid(rf.numTrees, [32, 190]) \
-        .addGrid(rf.maxBins, [40, 50]) \
+        .addGrid(rf.maxBins, [150, 200]) \
         .build()
     evaluator = RegressionEvaluator(
         labelCol="label", predictionCol="prediction", metricName="rmse")
@@ -34,7 +34,7 @@ def decision_tree(train_features):
     dt = DecisionTreeRegressor(labelCol="label", featuresCol="features")
 
     dtparamGrid = (ParamGridBuilder().addGrid(dt.maxDepth, [2, 5, 10, 20, 30])
-                                    .addGrid(dt.maxBins, [25, 50, 75, 100])
+                                    .addGrid(dt.maxBins, [150, 200])
                                     .build())
     
     evaluator = RegressionEvaluator(

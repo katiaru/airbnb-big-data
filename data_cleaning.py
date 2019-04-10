@@ -54,7 +54,7 @@ def convert_column_types(listings):
     return fix_price
     
 def string_index(listings):
-    listings = neighbourhood_count(listings)
+    # listings = neighbourhood_count(listings)
     neighbourhood_cleansed_indexer = StringIndexer(inputCol="neighbourhood_cleansed", outputCol="neighbourhood_cleansed_index", handleInvalid = "keep").fit(listings).transform(listings)
     experiences_offered_indexer = StringIndexer(inputCol="experiences_offered", outputCol="experiences_offered_index", handleInvalid = "keep").fit(neighbourhood_cleansed_indexer).transform(neighbourhood_cleansed_indexer)
     room_type_indexer = StringIndexer(inputCol="room_type", outputCol="room_index", handleInvalid = "keep").fit(experiences_offered_indexer).transform(experiences_offered_indexer)
@@ -88,7 +88,7 @@ def string_index(listings):
 
 def transform_df_to_features_vector(train_features):
     assemblerInputs = ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
-                       'neighbourhood_cleansed_index', 'neighbourhood_count', 'bed_index', 'experiences_offered_index',
+                       'neighbourhood_cleansed_index', 'bed_index', 'experiences_offered_index',
                        'cancellation_index', 'room_index',
                        'accommodates', 'host_index', 'host_listings_count', 'guest_phone_verification',
                        'guest_profile_picture', 'property_type_index',
@@ -99,7 +99,6 @@ def transform_df_to_features_vector(train_features):
     train_features = add_amenities_columns(train_features, amenities_total_list)
 
     assemblerInputs = assemblerInputs + amenities_total_list
-
     assembler = VectorAssembler(inputCols=assemblerInputs, outputCol="features")
 
     df = assembler.transform(train_features)

@@ -1,7 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql import Row, DataFrame
 from pyspark.rdd import RDD
-from sklearn.externals import joblib
 from listings_columns import listings_columns
 from training_models import *
 from all_cities import all_cities
