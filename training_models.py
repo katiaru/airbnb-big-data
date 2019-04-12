@@ -33,16 +33,15 @@ def decision_tree(train_features):
     df = train_features
     dt = DecisionTreeRegressor(labelCol="label", featuresCol="features")
 
-    dtparamGrid = (ParamGridBuilder().addGrid(dt.maxDepth, [2, 5, 10, 20, 30])
-                                    .addGrid(dt.maxBins, [150, 200])
-                                    .build())
-    
+    dtparamGrid = ParamGridBuilder() \
+        .addGrid(dt.maxDepth, [2, 5, 10, 20, 30]) \
+        .addGrid(dt.maxBins, [150, 200]) \
+        .build()
     evaluator = RegressionEvaluator(
         labelCol="label", predictionCol="prediction", metricName="rmse")
-
-    crossval = CrossValidator(estimator = dt,
-                              estimatorParamMaps = dtparamGrid,
-                              evaluator = evaluator,
+    crossval = CrossValidator(estimator=dt,
+                              estimatorParamMaps=dtparamGrid,
+                              evaluator=evaluator,
                               numFolds=3)
     dt_model = crossval.fit(df)
     return dt_model

@@ -2,6 +2,7 @@ from pyspark.sql.functions import regexp_replace, col, split
 from pyspark.ml.feature import StringIndexer, CountVectorizer
 from pyspark.ml.feature import VectorAssembler
 from data_calculations import neighbourhood_count, get_amenities_total_list, add_amenities_columns
+from listings_columns import *
 
 
 def clean_data(listings):
@@ -91,24 +92,7 @@ def string_index(listings):
     return host_identity_verified_index_dropped
 
 def transform_df_to_features_vector(train_features):
-    assemblerInputs = ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
-                       'neighbourhood_cleansed_index', 'bed_index', 'experiences_offered_index',
-                       'host_verifications_count', 'cancellation_index', 'room_index', 'guest_phone_verification',
-                       'accommodates', 'host_index', 'guest_profile_picture', 'host_listings_count', 'price',
-                       'bathrooms', 'bedrooms', 'extra_people','beds', 'property_type_index', 'guests_included',
-                       'host_has_profile_pic_index', 'calculated_host_listings_count', 'business_travel_index',
-                       'instant_bookable_index', 'availability_365', 'availability_90', 'availability_60',
-                       'availability_30', 'maximum_nights', 'minimum_nights', 'is_location_exact_index',
-                       'host_identity_verified_index']
-    '''
-        ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
-                       'neighbourhood_cleansed_index', 'bed_index', 'experiences_offered_index',
-                       'cancellation_index', 'room_index',
-                       'accommodates', 'host_index', 'host_listings_count', 'guest_phone_verification',
-                       'guest_profile_picture', 'property_type_index',
-                       'host_has_profile_pic_index']
-    '''
-
+    assemblerInputs = columns_35
     amenities_total_list = get_amenities_total_list(train_features)
 
     train_features = add_amenities_columns(train_features, amenities_total_list)
