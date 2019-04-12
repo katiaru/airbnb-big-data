@@ -7,8 +7,8 @@ def calculate_dataset(listings):
     above_mean_ratings = listings.filter(listings.review_scores_rating > mean_review_scores_rating).drop('review_scores_rating')
     reviews_per_month = above_mean_ratings.filter(above_mean_ratings.reviews_per_month > 0.5).drop('reviews_per_month')
     df1 = amenities_count(reviews_per_month)
-    # df2 = verifications_count(df1)
-    return df1
+    df2 = host_verifications_count(df1)
+    return df2
 
 
 def neighbourhood_count(listings):
@@ -21,8 +21,8 @@ def amenities_count(listings):
     return listings.withColumn('amenities_count', size(split(col("amenities"), r"\,")))
 
 
-def verifications_count(listings):
-    return listings.withColumn('verifications_count', size(split(col("host_verifications"), r"\,"))).drop('host_verifications')
+def host_verifications_count(listings):
+    return listings.withColumn('host_verifications_count', size(split(col('host_verifications'), r"\,")))
 
 
 def get_amenities_total_list(listings):

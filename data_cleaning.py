@@ -29,7 +29,6 @@ def remove_dollar_signs(listings):
                                 .drop('cleaning_fee').withColumnRenamed('new_cleaning_fee', 'cleaning_fee')
     extra_people = cleaning_fee.withColumn('new_extra_people', regexp_replace(col('extra_people'), '\$', ''))\
                                 .drop('extra_people').withColumnRenamed('new_extra_people', 'extra_people')
-
     return extra_people
 
 
@@ -38,20 +37,25 @@ def convert_column_types(listings):
     longitude = latitude.withColumn("longitude", listings["longitude"].cast("double"))
     cleaning_fee = longitude.withColumn("cleaning_fee", listings["cleaning_fee"].cast("double"))
     security_deposit = cleaning_fee.withColumn("security_deposit", listings["security_deposit"].cast("double"))
-    reviews_per_month = security_deposit.withColumn("reviews_per_month", listings["reviews_per_month"].cast("double"))
-    review_scores_rating = reviews_per_month.withColumn("review_scores_rating", listings["review_scores_rating"].cast("integer"))
-    accommodates = review_scores_rating.withColumn("accommodates", listings["accommodates"].cast("integer"))
+    review_scores_rating = security_deposit.withColumn("review_scores_rating", listings["review_scores_rating"].cast("integer"))
+    reviews_per_month = review_scores_rating.withColumn("reviews_per_month", listings["reviews_per_month"].cast("double"))
+    accommodates = reviews_per_month.withColumn("accommodates", listings["accommodates"].cast("integer"))
     host_listings_count = accommodates.withColumn("host_listings_count", listings["host_listings_count"].cast("integer"))
-    # availability_30 = host_listings_count.withColumn("availability_30", listings["availability_30"].cast("integer"))
-    minimum_nights = host_listings_count.withColumn("minimum_nights", listings["minimum_nights"].cast("integer"))
-    bathrooms = minimum_nights.withColumn("bathrooms", listings["bathrooms"].cast("double"))
+    availability_30 = host_listings_count.withColumn("availability_30", listings["availability_30"].cast("integer"))
+    availability_60 = availability_30.withColumn("availability_60", listings["availability_60"].cast("integer"))
+    availability_90 = availability_60.withColumn("availability_90", listings["availability_90"].cast("integer"))
+    availability_365 = availability_90.withColumn("availability_365", listings["availability_365"].cast("integer"))
+    minimum_nights = availability_365.withColumn("minimum_nights", listings["minimum_nights"].cast("integer"))
+    maximum_nights = minimum_nights.withColumn("maximum_nights", listings["maximum_nights"].cast("integer"))
+    bathrooms = maximum_nights.withColumn("bathrooms", listings["bathrooms"].cast("double"))
     bedrooms = bathrooms.withColumn("bedrooms", listings["bedrooms"].cast("integer"))
     guests_included = bedrooms.withColumn("guests_included", listings["guests_included"].cast("integer"))
     extra_people = guests_included.withColumn("extra_people", listings["extra_people"].cast("double"))
     beds = extra_people.withColumn("beds", listings["beds"].cast("integer"))
-    price = beds.withColumn("price", listings["price"].cast("double"))
-    fix_price = price.filter(price['price'].isNotNull())
-    return fix_price
+    calculated_host_listings_count = beds.withColumn('calculated_host_listings_count', listings['calculated_host_listings_count'].cast('integer'))
+    price = calculated_host_listings_count.withColumn("price", listings["price"].cast("double")).filter(calculated_host_listings_count['price'].isNotNull())
+
+    return price
     
 def string_index(listings):
     # listings = neighbourhood_count(listings)
@@ -64,13 +68,13 @@ def string_index(listings):
     require_guest_phone_verification = StringIndexer(inputCol="require_guest_phone_verification", outputCol="guest_phone_verification", handleInvalid = "keep").fit(host_index).transform(host_index)
     require_guest_profile_picture = StringIndexer(inputCol="require_guest_profile_picture", outputCol="guest_profile_picture", handleInvalid = "keep").fit(require_guest_phone_verification).transform(require_guest_phone_verification)
     property_type = StringIndexer(inputCol="property_type", outputCol="property_type_index", handleInvalid = "keep").fit(require_guest_profile_picture).transform(require_guest_profile_picture)
-    # instant_bookable = StringIndexer(inputCol="instant_bookable", outputCol="instant_bookable_index", handleInvalid = "keep").fit(property_type).transform(property_type)
-    # is_business_travel_ready = StringIndexer(inputCol="is_business_travel_ready", outputCol="business_travel_index", handleInvalid = "keep").fit(instant_bookable).transform(instant_bookable)
-    host_has_profile_pic = StringIndexer(inputCol="host_has_profile_pic", outputCol="host_has_profile_pic_index", handleInvalid = "keep").fit(property_type).transform(property_type)
-    # host_identify_verified = StringIndexer(inputCol="host_identify_verified", outputCol="host_identify_verified_index", handleInvalid = "keep").fit(host_has_profile_pic).transform(host_has_profile_pic)
+    instant_bookable = StringIndexer(inputCol="instant_bookable", outputCol="instant_bookable_index", handleInvalid = "keep").fit(property_type).transform(property_type)
+    is_business_travel_ready = StringIndexer(inputCol="is_business_travel_ready", outputCol="business_travel_index", handleInvalid = "keep").fit(instant_bookable).transform(instant_bookable)
+    host_has_profile_pic = StringIndexer(inputCol="host_has_profile_pic", outputCol="host_has_profile_pic_index", handleInvalid = "keep").fit(is_business_travel_ready).transform(is_business_travel_ready)
+    is_location_exact = StringIndexer(inputCol="is_location_exact", outputCol="is_location_exact_index", handleInvalid = "keep").fit(host_has_profile_pic).transform(host_has_profile_pic)
+    host_identity_verified = StringIndexer(inputCol="host_identity_verified", outputCol="host_identity_verified_index", handleInvalid = "keep").fit(is_location_exact).transform(is_location_exact)
 
-
-    neighbourhood_cleansed_indexer = host_has_profile_pic.drop('neighbourhood_cleansed')
+    neighbourhood_cleansed_indexer = host_identity_verified.drop('neighbourhood_cleansed')
     experiences_offered_dropped = neighbourhood_cleansed_indexer.drop('experiences_offered')
     room_type_dropped = experiences_offered_dropped.drop('room_type')
     bed_type_dropped = room_type_dropped.drop('bed_type')
@@ -82,17 +86,28 @@ def string_index(listings):
     instant_bookable_dropped = property_type_dropped.drop('instant_bookable')
     is_business_travel_ready_dropped = instant_bookable_dropped.drop('is_business_travel_ready')
     host_has_profile_pic_dropped = is_business_travel_ready_dropped.drop('host_has_profile_pic')
-    # host_identify_verified_dropped = host_has_profile_pic_dropped.drop('host_identify_verified')
+    host_identity_verified_index_dropped = host_has_profile_pic_dropped.drop('host_identity_verified')
 
-    return host_has_profile_pic_dropped
+    return host_identity_verified_index_dropped
 
 def transform_df_to_features_vector(train_features):
     assemblerInputs = ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
+                       'neighbourhood_cleansed_index', 'bed_index', 'experiences_offered_index',
+                       'host_verifications_count', 'cancellation_index', 'room_index', 'guest_phone_verification',
+                       'accommodates', 'host_index', 'guest_profile_picture', 'host_listings_count', 'price',
+                       'bathrooms', 'bedrooms', 'extra_people','beds', 'property_type_index', 'guests_included',
+                       'host_has_profile_pic_index', 'calculated_host_listings_count', 'business_travel_index',
+                       'instant_bookable_index', 'availability_365', 'availability_90', 'availability_60',
+                       'availability_30', 'maximum_nights', 'minimum_nights', 'is_location_exact_index',
+                       'host_identity_verified_index']
+    '''
+        ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
                        'neighbourhood_cleansed_index', 'bed_index', 'experiences_offered_index',
                        'cancellation_index', 'room_index',
                        'accommodates', 'host_index', 'host_listings_count', 'guest_phone_verification',
                        'guest_profile_picture', 'property_type_index',
                        'host_has_profile_pic_index']
+    '''
 
     amenities_total_list = get_amenities_total_list(train_features)
 
