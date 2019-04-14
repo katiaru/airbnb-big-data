@@ -21,3 +21,11 @@ columns_35 = ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'c
               'availability_60', 'availability_30', 'maximum_nights', 'minimum_nights', 'is_location_exact_index',
               'host_identity_verified_index']
 
+columns_importance = ['latitude', 'longitude', 'amenities_count', 'security_deposit', 'cleaning_fee',
+                      'neighbourhood_cleansed_index', 'host_verifications_count', 'cancellation_index', 'room_index',
+                      'accommodates', 'host_index', 'host_listings_count', 'price', 'bathrooms', 'bedrooms',
+                      'extra_people', 'beds', 'property_type_index', 'guests_included', 'calculated_host_listings_count',
+                      'availability_365', 'availability_90', 'availability_60', 'availability_30', 'maximum_nights',
+                      'minimum_nights']
+
+

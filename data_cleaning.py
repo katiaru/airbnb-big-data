@@ -10,8 +10,6 @@ def clean_data(listings):
     df2 = remove_dollar_signs(df1)
     df3 = convert_column_types(df2)
     df4 = string_index(df3)
-    #df5 = one_hot_vector(df4)
-
     return df4.na.drop()
 
 
@@ -92,7 +90,7 @@ def string_index(listings):
     return host_identity_verified_index_dropped
 
 def transform_df_to_features_vector(train_features):
-    assemblerInputs = columns_35
+    assemblerInputs = columns_importance
     amenities_total_list = get_amenities_total_list(train_features)
 
     train_features = add_amenities_columns(train_features, amenities_total_list)
