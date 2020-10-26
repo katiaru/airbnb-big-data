@@ -1,4 +1,4 @@
-# Airbnb Big Data Project
+﻿# Airbnb Big Data Project
 
 Estimating Best Airbnb Price Based on
 Similar Postings
@@ -13,6 +13,6 @@ different machine learning algorithms to each other as well as trying to optimis
 of the algorithms to yield the best price estimator model.
 
 
-The environment we are using is a linux docker container. 
+The environment we are using is a linux docker container 
 
 docker run -it -v "$(pwd):/assignment" bigdatalabteam/sparkdocker
